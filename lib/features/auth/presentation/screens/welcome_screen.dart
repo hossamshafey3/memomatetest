@@ -44,11 +44,15 @@ class WelcomeScreen extends StatelessWidget {
               CustomButton(
                 text: 'sign up',
                 onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/signUpScreen',
-                    arguments: userType,
-                  );
+                  if (userType.toLowerCase() == 'doctor') {
+                    Navigator.pushNamed(context, '/doctorRegisterScreen');
+                  } else {
+                    Navigator.pushNamed(
+                      context,
+                      '/signUpScreen',
+                      arguments: userType,
+                    );
+                  }
                 },
               ),
               SizedBox(height: 20.h),
@@ -57,11 +61,15 @@ class WelcomeScreen extends StatelessWidget {
                 backgroundColor: AppColors.white,
                 textColor: AppColors.primary,
                 onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/loginScreen',
-                    arguments: userType,
-                  );
+                  if (userType.toLowerCase() == 'doctor') {
+                    Navigator.pushNamed(context, '/doctorLoginScreen');
+                  } else {
+                    Navigator.pushNamed(
+                      context,
+                      '/loginScreen',
+                      arguments: userType,
+                    );
+                  }
                 },
               ),
             ],
