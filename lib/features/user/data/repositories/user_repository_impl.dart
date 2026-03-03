@@ -4,6 +4,7 @@
 
 import 'package:gradproj/core/errors/exceptions.dart';
 import 'package:gradproj/core/errors/failures.dart';
+import 'package:gradproj/features/doctor/data/models/doctor_model.dart';
 import 'package:gradproj/features/user/data/data_sources/user_remote_data_source.dart';
 import 'package:gradproj/features/user/data/models/user_models.dart';
 import 'package:gradproj/features/user/data/models/user_register_model.dart';
@@ -15,6 +16,9 @@ abstract class UserRepository {
   );
   Future<({UserProfile? profile, Failure? failure})> updateUserProfile(
     Map<String, dynamic> data,
+    String token,
+  );
+  Future<({List<DoctorProfile>? doctors, Failure? failure})> getAllDoctors(
     String token,
   );
 }
@@ -88,6 +92,27 @@ class UserRepositoryImpl implements UserRepository {
       );
     } catch (e) {
       return (profile: null, failure: UnexpectedFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<({List<DoctorProfile>? doctors, Failure? failure})> getAllDoctors(
+    String token,
+  ) async {
+    try {
+      final doctors = await _remote.getAllDoctors(token);
+      return (doctors: doctors, failure: null);
+    } on NoInternetException {
+      return (doctors: null, failure: const NoInternetFailure());
+    } on RequestTimeoutException {
+      return (doctors: null, failure: const RequestTimeoutFailure());
+    } on ServerException catch (e) {
+      return (
+        doctors: null,
+        failure: ServerFailure(message: e.message, statusCode: e.statusCode),
+      );
+    } catch (e) {
+      return (doctors: null, failure: UnexpectedFailure(message: e.toString()));
     }
   }
 }

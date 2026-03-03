@@ -10,6 +10,7 @@ import 'package:gradproj/core/theme/app_colors.dart';
 import 'package:gradproj/features/user/data/models/user_models.dart';
 import 'package:gradproj/features/user/logic/user_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gradproj/features/user/presentation/screens/doctors_main_screen.dart';
 import 'package:gradproj/features/user/presentation/screens/user_profile_screen.dart';
 
 class UserHomeScreen extends StatefulWidget {
@@ -38,7 +39,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   void _buildPages() {
     _pages = [
       _HomeTab(profile: _profile),
-      const _PlaceholderTab(label: 'Doctor'),
+      DoctorsMainScreen(token: widget.token, userId: _profile.id),
       const _PlaceholderTab(label: 'Reminder'),
       UserProfileScreen(profile: _profile, token: widget.token),
     ];

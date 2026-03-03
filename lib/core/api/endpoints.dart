@@ -27,6 +27,7 @@ class ApiEndpoints {
 
   // ── Profile ───────────────────────────────────────────────────
   static const String profile = '/profile';
+  static const String getAllDoctors = '/doctor';
   static const String updateProfile = '/profile/update';
   static const String uploadAvatar = '/profile/avatar';
 

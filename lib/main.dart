@@ -10,6 +10,7 @@ import 'package:gradproj/features/user/logic/user_cubit.dart';
 import 'package:gradproj/features/doctor/data/data_sources/doctor_remote_data_source.dart';
 import 'package:gradproj/features/doctor/data/repositories/doctor_repository_impl.dart';
 import 'package:gradproj/features/doctor/logic/doctor_cubit.dart';
+import 'package:gradproj/features/user/logic/doctors_list_cubit.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,6 +45,9 @@ class MyApp extends StatelessWidget {
               create: (_) => DoctorCubit(doctorRepository),
             ),
             BlocProvider<UserCubit>(create: (_) => UserCubit(userRepository)),
+            BlocProvider<DoctorsListCubit>(
+              create: (_) => DoctorsListCubit(userRepository),
+            ),
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,

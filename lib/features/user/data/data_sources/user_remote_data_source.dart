@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:gradproj/core/api/endpoints.dart';
 import 'package:gradproj/core/errors/exceptions.dart';
+import 'package:gradproj/features/doctor/data/models/doctor_model.dart';
 import 'package:gradproj/features/user/data/models/user_models.dart';
 import 'package:gradproj/features/user/data/models/user_register_model.dart';
 
@@ -17,6 +18,7 @@ abstract class UserRemoteDataSource {
     Map<String, dynamic> data,
     String token,
   );
+  Future<List<DoctorProfile>> getAllDoctors(String token);
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
@@ -168,6 +170,59 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
 
       final updatedProfileData = body['data'] as Map<String, dynamic>? ?? {};
       return UserProfile.fromJson(updatedProfileData);
+    } on ServerException {
+      rethrow;
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        throw const RequestTimeoutException();
+      }
+      if (e.type == DioExceptionType.connectionError) {
+        throw const NoInternetException();
+      }
+      final body = _parseBody(e.response?.data);
+      final message =
+          body['message'] as String? ?? 'An unexpected error occurred.';
+      throw ServerException(
+        message: message,
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  // ── Get All Doctors ─────────────────────────────────────────────
+  @override
+  Future<List<DoctorProfile>> getAllDoctors(String token) async {
+    try {
+      final response = await _dio.get(
+        '${ApiEndpoints.baseUrl}${ApiEndpoints.getAllDoctors}',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          validateStatus: (status) => true,
+        ),
+      );
+
+      final body = _parseBody(response.data);
+      final success = body['success'] as bool? ?? false;
+
+      if (!success) {
+        final message =
+            body['message'] as String? ?? 'Failed to fetch doctors.';
+        throw ServerException(
+          message: message,
+          statusCode: response.statusCode,
+        );
+      }
+
+      final dataList = body['data'] as List<dynamic>? ?? [];
+      return dataList
+          .map((e) => DoctorProfile.fromJson(e as Map<String, dynamic>))
+          .toList();
     } on ServerException {
       rethrow;
     } on DioException catch (e) {

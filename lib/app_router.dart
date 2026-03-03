@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gradproj/features/doctor/data/models/doctor_model.dart';
 import 'package:gradproj/features/user/data/models/user_models.dart';
+import 'package:gradproj/features/user/presentation/screens/doctor_details_screen.dart';
 import 'package:gradproj/features/user/presentation/screens/user_edit_profile_screen.dart';
 import 'package:gradproj/features/user/presentation/screens/user_home_screen.dart';
 import 'package:gradproj/features/user/presentation/screens/user_login_screen.dart';
@@ -8,7 +10,6 @@ import 'package:gradproj/features/user/presentation/screens/user_sign_up_screen.
 import 'package:gradproj/features/auth/presentation/screens/splash_screen.dart';
 import 'package:gradproj/features/auth/presentation/screens/welcome_screen.dart';
 import 'package:gradproj/features/doctor/presentation/screens/doctor_home_screen.dart';
-import 'package:gradproj/features/doctor/data/models/doctor_model.dart';
 import 'package:gradproj/features/doctor/presentation/screens/doctor_login_screen.dart';
 import 'package:gradproj/features/doctor/presentation/screens/doctor_register_screen.dart';
 
@@ -19,6 +20,7 @@ class Routes {
   static const String loginScreen = '/loginScreen';
   static const String userHomeScreen = '/userHomeScreen';
   static const String userEditProfileScreen = '/userEditProfileScreen';
+  static const String doctorDetailsScreen = '/doctorDetailsScreen';
   static const String signUpScreen = '/signUpScreen';
   static const String doctorRegisterScreen = '/doctorRegisterScreen';
   static const String doctorLoginScreen = '/doctorLoginScreen';
@@ -57,6 +59,11 @@ class AppRouter {
         final token = args['token'] as String? ?? '';
         return MaterialPageRoute(
           builder: (_) => UserEditProfileScreen(profile: profile, token: token),
+        );
+      case Routes.doctorDetailsScreen:
+        final doctor = settings.arguments as DoctorProfile;
+        return MaterialPageRoute(
+          builder: (_) => DoctorDetailsScreen(doctor: doctor),
         );
       case Routes.doctorRegisterScreen:
         return MaterialPageRoute(builder: (_) => const DoctorRegisterScreen());
