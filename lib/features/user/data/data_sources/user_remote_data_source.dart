@@ -1,0 +1,132 @@
+// ─────────────────────────────────────────────
+//  user_remote_data_source.dart  –  Memomate
+//  Remote data source for User feature.
+// ─────────────────────────────────────────────
+
+import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:gradproj/core/api/endpoints.dart';
+import 'package:gradproj/core/errors/exceptions.dart';
+import 'package:gradproj/features/user/data/models/user_models.dart';
+import 'package:gradproj/features/user/data/models/user_register_model.dart';
+
+abstract class UserRemoteDataSource {
+  Future<void> registerUser(UserRegisterModel model);
+  Future<UserLoginResponse> loginUser(UserLoginModel model);
+}
+
+class UserRemoteDataSourceImpl implements UserRemoteDataSource {
+  final Dio _dio;
+  UserRemoteDataSourceImpl(this._dio);
+
+  Map<String, dynamic> _parseBody(dynamic data) {
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return data.map((k, v) => MapEntry(k.toString(), v));
+    if (data is String && data.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(data);
+        if (decoded is Map) {
+          return decoded.map((k, v) => MapEntry(k.toString(), v));
+        }
+      } catch (_) {}
+    }
+    return {};
+  }
+
+  // ── Register ────────────────────────────────────────────────────
+  @override
+  Future<void> registerUser(UserRegisterModel model) async {
+    try {
+      final response = await _dio.post(
+        '${ApiEndpoints.baseUrl}${ApiEndpoints.patientRegister}',
+        data: jsonEncode(model.toJson()),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          validateStatus: (status) => true,
+        ),
+      );
+
+      final body = _parseBody(response.data);
+      final success = body['success'] as bool? ?? false;
+
+      if (!success) {
+        final message =
+            body['message'] as String? ?? 'Registration failed. Try again.';
+        throw ServerException(
+          message: message,
+          statusCode: response.statusCode,
+        );
+      }
+    } on ServerException {
+      rethrow;
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        throw const RequestTimeoutException();
+      }
+      if (e.type == DioExceptionType.connectionError) {
+        throw const NoInternetException();
+      }
+      final body = _parseBody(e.response?.data);
+      final message =
+          body['message'] as String? ?? 'An unexpected error occurred.';
+      throw ServerException(
+        message: message,
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  // ── Login ───────────────────────────────────────────────────────
+  @override
+  Future<UserLoginResponse> loginUser(UserLoginModel model) async {
+    try {
+      final response = await _dio.post(
+        '${ApiEndpoints.baseUrl}${ApiEndpoints.patientLogin}',
+        data: jsonEncode(model.toJson()),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          validateStatus: (status) => true,
+        ),
+      );
+
+      final body = _parseBody(response.data);
+      final success = body['success'] as bool? ?? false;
+
+      if (!success) {
+        final message = body['message'] as String? ?? 'Invalid credentials.';
+        throw ServerException(
+          message: message,
+          statusCode: response.statusCode,
+        );
+      }
+
+      return UserLoginResponse.fromJson(body);
+    } on ServerException {
+      rethrow;
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        throw const RequestTimeoutException();
+      }
+      if (e.type == DioExceptionType.connectionError) {
+        throw const NoInternetException();
+      }
+      final body = _parseBody(e.response?.data);
+      final message =
+          body['message'] as String? ?? 'An unexpected error occurred.';
+      throw ServerException(
+        message: message,
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+}

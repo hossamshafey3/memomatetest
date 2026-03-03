@@ -169,12 +169,21 @@ class _DoctorRegisterScreenState extends State<DoctorRegisterScreen> {
       backgroundColor: AppColors.background,
       body: BlocConsumer<DoctorCubit, DoctorState>(
         listener: (context, state) {
-          if (state is DoctorLoginSuccess) {
+          if (state is DoctorSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Account created successfully 🎉'),
+                backgroundColor: AppColors.primary,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+              ),
+            );
             Navigator.pushNamedAndRemoveUntil(
               context,
-              '/doctorHomeScreen',
+              '/doctorLoginScreen',
               (route) => false,
-              arguments: state.profile,
             );
           } else if (state is DoctorFailure) {
             ScaffoldMessenger.of(context).showSnackBar(

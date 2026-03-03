@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gradproj/core/services/auth_storage.dart';
 import 'package:gradproj/core/theme/app_colors.dart';
 import 'package:gradproj/core/widgets/custom_button.dart';
 import 'package:gradproj/core/widgets/custom_text_field.dart';
@@ -15,7 +16,12 @@ import 'package:gradproj/features/doctor/logic/doctor_cubit.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
   final DoctorProfile doctor;
-  const DoctorProfileScreen({super.key, required this.doctor});
+  final String token;
+  const DoctorProfileScreen({
+    super.key,
+    required this.doctor,
+    required this.token,
+  });
 
   @override
   State<DoctorProfileScreen> createState() => _DoctorProfileScreenState();
@@ -55,10 +61,11 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
             ),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
+              final nav = Navigator.of(context);
               Navigator.pop(ctx);
-              Navigator.pushNamedAndRemoveUntil(
-                context,
+              await AuthStorage.clearSession();
+              nav.pushNamedAndRemoveUntil(
                 '/roleSelectionScreen',
                 (route) => false,
               );
@@ -229,7 +236,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                                   '[update] doctorId="${_doctor.id}" fields=$fields',
                                 );
                                 context.read<DoctorCubit>().updateDoctor(
-                                  _doctor.id,
+                                  widget.token,
                                   fields,
                                 );
                               },

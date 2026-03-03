@@ -1,12 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gradproj/core/services/auth_storage.dart';
 import 'package:gradproj/core/theme/app_colors.dart';
-
 import 'package:gradproj/core/widgets/custom_button.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkSession();
+  }
+
+  Future<void> _checkSession() async {
+    // ── Check doctor session first ─────────────────────
+    final doctorToken = await AuthStorage.getToken();
+    final doctorProfile = await AuthStorage.getProfile();
+
+    if (!mounted) return;
+
+    if (doctorToken != null &&
+        doctorToken.isNotEmpty &&
+        doctorProfile != null) {
+      Navigator.pushReplacementNamed(
+        context,
+        '/doctorHomeScreen',
+        arguments: {'profile': doctorProfile, 'token': doctorToken},
+      );
+      return;
+    }
+
+    // ── Check user (caregiver) session ─────────────────
+    final userToken = await AuthStorage.getUserToken();
+    final userProfile = await AuthStorage.getUserProfile();
+
+    if (!mounted) return;
+
+    if (userToken != null && userToken.isNotEmpty && userProfile != null) {
+      Navigator.pushReplacementNamed(
+        context,
+        '/userHomeScreen',
+        arguments: {'profile': userProfile, 'token': userToken},
+      );
+      return;
+    }
+
+    // No session found — stay on splash, show Get Started
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,21 +69,8 @@ class SplashScreen extends StatelessWidget {
               Column(
                 children: [
                   // Placeholder for the brain/hands image
-                  // In a real app, use Image.asset('assets/images/logo.png')
-                  Icon(
-                    Icons.psychology,
-                    size: 100.sp,
-                    color: AppColors.secondary,
-                  ),
-                  SizedBox(height: 20.h),
-                  Text(
-                    'Memomate',
-                    style: GoogleFonts.dancingScript(
-                      fontSize: 40.sp,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.secondary,
-                    ),
-                  ),
+                  Image.asset('assets/images/MemoMateLogo.png'),
+
                   SizedBox(height: 40.h),
                   Text(
                     'Together we will make each day\nwith memomate a little easier a\nlittle lighter',
@@ -49,7 +83,7 @@ class SplashScreen extends StatelessWidget {
                 ],
               ),
               Padding(
-                padding: EdgeInsets.only(bottom: 40.h),
+                padding: EdgeInsets.only(bottom: 70.h),
                 child: CustomButton(
                   text: 'Get Started',
                   onPressed: () {

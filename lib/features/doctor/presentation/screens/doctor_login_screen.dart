@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gradproj/core/theme/app_colors.dart';
 import 'package:gradproj/core/widgets/custom_button.dart';
 import 'package:gradproj/core/widgets/custom_text_field.dart';
+import 'package:gradproj/core/services/auth_storage.dart';
 import 'package:gradproj/features/doctor/data/models/doctor_model.dart';
 import 'package:gradproj/features/doctor/logic/doctor_cubit.dart';
 
@@ -48,13 +49,19 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: BlocConsumer<DoctorCubit, DoctorState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is DoctorLoginSuccess) {
+            // Save session for auto-login on next launch
+            await AuthStorage.saveSession(
+              token: state.token,
+              profile: state.profile,
+            );
+            if (!context.mounted) return;
             Navigator.pushNamedAndRemoveUntil(
               context,
               '/doctorHomeScreen',
               (route) => false,
-              arguments: state.profile,
+              arguments: {'profile': state.profile, 'token': state.token},
             );
           } else if (state is DoctorFailure) {
             ScaffoldMessenger.of(context).showSnackBar(

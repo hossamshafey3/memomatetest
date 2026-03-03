@@ -14,8 +14,13 @@ import 'package:gradproj/features/doctor/presentation/screens/requests_screen.da
 
 class DoctorHomeScreen extends StatefulWidget {
   final DoctorProfile doctor;
+  final String token;
 
-  const DoctorHomeScreen({super.key, required this.doctor});
+  const DoctorHomeScreen({
+    super.key,
+    required this.doctor,
+    required this.token,
+  });
 
   @override
   State<DoctorHomeScreen> createState() => _DoctorHomeScreenState();
@@ -32,7 +37,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
     _pages = [
       PatientsScreen(doctor: widget.doctor),
       RequestsScreen(doctor: widget.doctor),
-      DoctorProfileScreen(doctor: widget.doctor),
+      DoctorProfileScreen(doctor: widget.doctor, token: widget.token),
     ];
   }
 

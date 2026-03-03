@@ -20,6 +20,10 @@ class ApiEndpoints {
   static const String resetPassword = '/auth/reset-password';
   static const String verifyEmail = '/auth/verify-email';
 
+  // ── Patient (User) ────────────────────────────────────────────
+  static const String patientRegister = '/patient/register';
+  static const String patientLogin = '/patient/login';
+
   // ── Profile ───────────────────────────────────────────────────
   static const String profile = '/profile';
   static const String updateProfile = '/profile/update';
@@ -29,7 +33,7 @@ class ApiEndpoints {
   static const String doctorRegister = '/doctor'; // POST – register new doctor
   static const String doctorLogin = '/doctor/login'; // POST – login doctor
   static const String doctorUpdate =
-      '/doctor/{id}'; // PATCH – update doctor by id
+      '/doctor'; // PUT – update authenticated doctor
   static const String doctors = '/doctor';
   static const String doctorDetails = '/doctor/{id}'; // replace {id} at runtime
   static const String assignDoctor = '/doctor/assign';

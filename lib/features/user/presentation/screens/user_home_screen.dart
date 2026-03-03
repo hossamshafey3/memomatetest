@@ -1,0 +1,258 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  user_home_screen.dart  –  Memomate
+//  Caregiver home screen with bottom navigation and 4-card dashboard.
+// ─────────────────────────────────────────────────────────────────────────────
+
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:gradproj/core/theme/app_colors.dart';
+import 'package:gradproj/features/user/data/models/user_models.dart';
+import 'package:gradproj/features/user/presentation/screens/user_profile_screen.dart';
+
+class UserHomeScreen extends StatefulWidget {
+  final UserProfile profile;
+  final String token;
+
+  const UserHomeScreen({super.key, required this.profile, required this.token});
+
+  @override
+  State<UserHomeScreen> createState() => _UserHomeScreenState();
+}
+
+class _UserHomeScreenState extends State<UserHomeScreen> {
+  int _currentIndex = 0;
+
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      _HomeTab(profile: widget.profile),
+      const _PlaceholderTab(label: 'Doctor'),
+      const _PlaceholderTab(label: 'Reminder'),
+      UserProfileScreen(profile: widget.profile, token: widget.token),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: IndexedStack(index: _currentIndex, children: _pages),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (i) => setState(() => _currentIndex = i),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.grey,
+        selectedLabelStyle: GoogleFonts.poppins(fontSize: 11.sp),
+        unselectedLabelStyle: GoogleFonts.poppins(fontSize: 11.sp),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.medical_services_outlined),
+            label: 'Doctor',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications_outlined),
+            label: 'Reminder',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline_rounded),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Home Tab
+// ─────────────────────────────────────────────────────────────────────────────
+class _HomeTab extends StatelessWidget {
+  final UserProfile profile;
+  const _HomeTab({required this.profile});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Header banner ───────────────────────────────
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(16.w),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+              decoration: BoxDecoration(
+                color: AppColors.secondary.withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 30.r,
+                        backgroundColor: AppColors.primary.withValues(
+                          alpha: 0.2,
+                        ),
+                        child: Icon(
+                          Icons.person_rounded,
+                          size: 34.r,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      SizedBox(width: 14.w),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Welcome  ',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.black,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: profile.caregiverName,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16.sp,
+                                    color: AppColors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Caregiver',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12.sp,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 14.h),
+                  Text(
+                    'What do you need?',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14.sp,
+                      color: AppColors.black.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ── 2×2 Grid ────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisSpacing: 12.w,
+                mainAxisSpacing: 12.h,
+                childAspectRatio: 1.1,
+                children: const [
+                  _DashCard(
+                    icon: Icons.medical_services_outlined,
+                    label: 'Doctor',
+                  ),
+                  _DashCard(
+                    icon: Icons.notifications_active_outlined,
+                    label: 'Reminders',
+                  ),
+                  _DashCard(
+                    icon: Icons.location_on_outlined,
+                    label: 'Location',
+                  ),
+                  _DashCard(icon: Icons.description_outlined, label: 'Reports'),
+                ],
+              ),
+            ),
+            SizedBox(height: 24.h),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Dashboard card
+// ─────────────────────────────────────────────────────────────────────────────
+class _DashCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _DashCard({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 44.r, color: AppColors.primary),
+            SizedBox(height: 10.h),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                color: AppColors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Placeholder tab (Doctor / Reminder)
+// ─────────────────────────────────────────────────────────────────────────────
+class _PlaceholderTab extends StatelessWidget {
+  final String label;
+  const _PlaceholderTab({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        label,
+        style: GoogleFonts.poppins(fontSize: 20.sp, color: AppColors.grey),
+      ),
+    );
+  }
+}

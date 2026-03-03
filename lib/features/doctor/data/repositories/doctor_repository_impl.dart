@@ -13,11 +13,10 @@ abstract class DoctorRepository {
   Future<({DoctorProfile? profile, Failure? failure})> registerDoctor(
     DoctorRegisterModel model,
   );
-  Future<({DoctorProfile? profile, Failure? failure})> loginDoctor(
-    DoctorLoginModel model,
-  );
+  Future<({DoctorProfile? profile, String? token, Failure? failure})>
+  loginDoctor(DoctorLoginModel model);
   Future<({DoctorProfile? profile, Failure? failure})> updateDoctor(
-    String id,
+    String token,
     Map<String, dynamic> fields,
   );
 }
@@ -49,33 +48,45 @@ class DoctorRepositoryImpl implements DoctorRepository {
   }
 
   @override
-  Future<({DoctorProfile? profile, Failure? failure})> loginDoctor(
-    DoctorLoginModel model,
-  ) async {
+  Future<({DoctorProfile? profile, String? token, Failure? failure})>
+  loginDoctor(DoctorLoginModel model) async {
     try {
-      final profile = await _remoteDataSource.loginDoctor(model);
-      return (profile: profile, failure: null);
+      final loginResponse = await _remoteDataSource.loginDoctor(model);
+      return (
+        profile: loginResponse.profile,
+        token: loginResponse.token,
+        failure: null,
+      );
     } on NoInternetException {
-      return (profile: null, failure: const NoInternetFailure());
+      return (profile: null, token: null, failure: const NoInternetFailure());
     } on RequestTimeoutException {
-      return (profile: null, failure: const RequestTimeoutFailure());
+      return (
+        profile: null,
+        token: null,
+        failure: const RequestTimeoutFailure(),
+      );
     } on ServerException catch (e) {
       return (
         profile: null,
+        token: null,
         failure: ServerFailure(message: e.message, statusCode: e.statusCode),
       );
     } catch (e) {
-      return (profile: null, failure: UnexpectedFailure(message: e.toString()));
+      return (
+        profile: null,
+        token: null,
+        failure: UnexpectedFailure(message: e.toString()),
+      );
     }
   }
 
   @override
   Future<({DoctorProfile? profile, Failure? failure})> updateDoctor(
-    String id,
+    String token,
     Map<String, dynamic> fields,
   ) async {
     try {
-      final profile = await _remoteDataSource.updateDoctor(id, fields);
+      final profile = await _remoteDataSource.updateDoctor(token, fields);
       return (profile: profile, failure: null);
     } on NoInternetException {
       return (profile: null, failure: const NoInternetFailure());

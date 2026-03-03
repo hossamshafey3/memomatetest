@@ -21,7 +21,11 @@ class WelcomeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Placeholder for the heart/people image
-              Icon(Icons.favorite, size: 100.sp, color: AppColors.primary),
+              Container(
+                width: 200.w,
+                height: 200.h,
+                child: Image.asset('assets/images/WelcomeLogo.png'),
+              ),
               SizedBox(height: 20.h),
               Text(
                 'Welcome',
@@ -60,6 +64,7 @@ class WelcomeScreen extends StatelessWidget {
                 text: 'Login',
                 backgroundColor: AppColors.white,
                 textColor: AppColors.primary,
+                borderColor: AppColors.primary,
                 onPressed: () {
                   if (userType.toLowerCase() == 'doctor') {
                     Navigator.pushNamed(context, '/doctorLoginScreen');

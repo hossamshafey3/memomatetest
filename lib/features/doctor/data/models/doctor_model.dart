@@ -58,6 +58,10 @@ class DoctorProfile {
   final String experience;
   final String about;
   final bool available;
+  final List<String> requests;
+  final List<String> patients;
+  final String createdAt;
+  final String updatedAt;
 
   const DoctorProfile({
     required this.id,
@@ -69,6 +73,10 @@ class DoctorProfile {
     required this.experience,
     required this.about,
     required this.available,
+    this.requests = const [],
+    this.patients = const [],
+    this.createdAt = '',
+    this.updatedAt = '',
   });
 
   factory DoctorProfile.fromJson(Map<String, dynamic> json) => DoctorProfile(
@@ -81,5 +89,33 @@ class DoctorProfile {
     experience: json['experience'] as String? ?? '',
     about: json['about'] as String? ?? '',
     available: json['available'] as bool? ?? false,
+    requests:
+        (json['requests'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        [],
+    patients:
+        (json['patients'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        [],
+    createdAt: json['createdAt'] as String? ?? '',
+    updatedAt: json['updatedAt'] as String? ?? '',
   );
+}
+
+// ── Login Response (profile + JWT token) ─────
+class DoctorLoginResponse {
+  final String token;
+  final DoctorProfile profile;
+
+  const DoctorLoginResponse({required this.token, required this.profile});
+
+  factory DoctorLoginResponse.fromJson(Map<String, dynamic> json) =>
+      DoctorLoginResponse(
+        token: json['token'] as String? ?? '',
+        profile: DoctorProfile.fromJson(
+          json['data'] as Map<String, dynamic>? ?? {},
+        ),
+      );
 }

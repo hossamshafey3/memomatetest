@@ -23,7 +23,7 @@ class DoctorCubit extends Cubit<DoctorState> {
     if (result.failure != null) {
       emit(DoctorFailure(message: result.failure!.message));
     } else {
-      emit(DoctorLoginSuccess(profile: result.profile!));
+      emit(DoctorSuccess());
     }
   }
 
@@ -35,14 +35,16 @@ class DoctorCubit extends Cubit<DoctorState> {
     if (result.failure != null) {
       emit(DoctorFailure(message: result.failure!.message));
     } else {
-      emit(DoctorLoginSuccess(profile: result.profile!));
+      emit(
+        DoctorLoginSuccess(profile: result.profile!, token: result.token ?? ''),
+      );
     }
   }
 
-  Future<void> updateDoctor(String id, Map<String, dynamic> fields) async {
+  Future<void> updateDoctor(String token, Map<String, dynamic> fields) async {
     emit(DoctorLoading());
 
-    final result = await _repository.updateDoctor(id, fields);
+    final result = await _repository.updateDoctor(token, fields);
 
     if (result.failure != null) {
       emit(DoctorFailure(message: result.failure!.message));

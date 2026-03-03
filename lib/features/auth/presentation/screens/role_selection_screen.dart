@@ -44,10 +44,11 @@ class RoleSelectionScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Placeholder for the connected people image
-                  Icon(Icons.groups, size: 100.sp, color: AppColors.primary),
-                  SizedBox(height: 40.h),
+                  Image.asset('assets/images/UserTypeLogo.png'),
+                  SizedBox(height: 20.h),
                   Text(
                     'User type:',
                     style: GoogleFonts.poppins(

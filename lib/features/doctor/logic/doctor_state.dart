@@ -16,13 +16,14 @@ class DoctorLoading extends DoctorState {}
 /// Registration completed successfully.
 class DoctorSuccess extends DoctorState {}
 
-/// Login completed successfully — carries the doctor's profile.
+/// Login completed successfully — carries the doctor's profile and JWT token.
 class DoctorLoginSuccess extends DoctorState {
   final DoctorProfile profile;
-  const DoctorLoginSuccess({required this.profile});
+  final String token;
+  const DoctorLoginSuccess({required this.profile, required this.token});
 
   @override
-  List<Object?> get props => [profile];
+  List<Object?> get props => [profile, token];
 }
 
 /// Profile update completed successfully — carries the updated profile.

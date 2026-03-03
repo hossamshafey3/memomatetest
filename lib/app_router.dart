@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gradproj/features/auth/presentation/screens/login_screen.dart';
+import 'package:gradproj/features/user/data/models/user_models.dart';
+import 'package:gradproj/features/user/presentation/screens/user_home_screen.dart';
+import 'package:gradproj/features/user/presentation/screens/user_login_screen.dart';
 import 'package:gradproj/features/auth/presentation/screens/role_selection_screen.dart';
-import 'package:gradproj/features/auth/presentation/screens/sign_up_screen.dart';
+import 'package:gradproj/features/user/presentation/screens/user_sign_up_screen.dart';
 import 'package:gradproj/features/auth/presentation/screens/splash_screen.dart';
 import 'package:gradproj/features/auth/presentation/screens/welcome_screen.dart';
 import 'package:gradproj/features/doctor/presentation/screens/doctor_home_screen.dart';
@@ -14,6 +16,7 @@ class Routes {
   static const String roleSelectionScreen = '/roleSelectionScreen';
   static const String welcomeScreen = '/welcomeScreen';
   static const String loginScreen = '/loginScreen';
+  static const String userHomeScreen = '/userHomeScreen';
   static const String signUpScreen = '/signUpScreen';
   static const String doctorRegisterScreen = '/doctorRegisterScreen';
   static const String doctorLoginScreen = '/doctorLoginScreen';
@@ -35,21 +38,27 @@ class AppRouter {
       case Routes.loginScreen:
         final userType = settings.arguments as String;
         return MaterialPageRoute(
-          builder: (_) => LoginScreen(userType: userType),
+          builder: (_) => UserLoginScreen(userType: userType),
         );
       case Routes.signUpScreen:
-        final userType = settings.arguments as String;
+        return MaterialPageRoute(builder: (_) => const UserSignUpScreen());
+      case Routes.userHomeScreen:
+        final args = settings.arguments as Map<String, dynamic>;
+        final profile = args['profile'] as UserProfile;
+        final token = args['token'] as String? ?? '';
         return MaterialPageRoute(
-          builder: (_) => SignUpScreen(userType: userType),
+          builder: (_) => UserHomeScreen(profile: profile, token: token),
         );
       case Routes.doctorRegisterScreen:
         return MaterialPageRoute(builder: (_) => const DoctorRegisterScreen());
       case Routes.doctorLoginScreen:
         return MaterialPageRoute(builder: (_) => const DoctorLoginScreen());
       case Routes.doctorHomeScreen:
-        final profile = settings.arguments as DoctorProfile;
+        final args = settings.arguments as Map<String, dynamic>;
+        final profile = args['profile'] as DoctorProfile;
+        final token = args['token'] as String? ?? '';
         return MaterialPageRoute(
-          builder: (_) => DoctorHomeScreen(doctor: profile),
+          builder: (_) => DoctorHomeScreen(doctor: profile, token: token),
         );
       default:
         return null;

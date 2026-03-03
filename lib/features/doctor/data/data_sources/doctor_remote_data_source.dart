@@ -14,11 +14,11 @@ abstract class DoctorRemoteDataSource {
   /// POSTs a new doctor registration to the API.
   Future<DoctorProfile> registerDoctor(DoctorRegisterModel model);
 
-  /// POSTs doctor login credentials and returns the doctor profile.
-  Future<DoctorProfile> loginDoctor(DoctorLoginModel model);
+  /// POSTs doctor login credentials and returns the login response (token + profile).
+  Future<DoctorLoginResponse> loginDoctor(DoctorLoginModel model);
 
-  /// PATCHes doctor profile by id with partial data.
-  Future<DoctorProfile> updateDoctor(String id, Map<String, dynamic> fields);
+  /// PUTs updated doctor fields — requires the JWT token for Authorization.
+  Future<DoctorProfile> updateDoctor(String token, Map<String, dynamic> fields);
 }
 
 class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
@@ -96,7 +96,7 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
   }
 
   @override
-  Future<DoctorProfile> loginDoctor(DoctorLoginModel model) async {
+  Future<DoctorLoginResponse> loginDoctor(DoctorLoginModel model) async {
     try {
       final response = await _dio.post(
         '${ApiEndpoints.baseUrl}${ApiEndpoints.doctorLogin}',
@@ -114,7 +114,7 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
       final success = body['success'] as bool? ?? false;
 
       if (success) {
-        return DoctorProfile.fromJson(_parseBody(body['data']));
+        return DoctorLoginResponse.fromJson(body);
       } else {
         final message =
             body['message'] as String? ?? 'Login failed. Try again.';
@@ -146,14 +146,12 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
 
   @override
   Future<DoctorProfile> updateDoctor(
-    String id,
+    String token,
     Map<String, dynamic> fields,
   ) async {
     try {
-      final url =
-          '${ApiEndpoints.baseUrl}${ApiEndpoints.withId(ApiEndpoints.doctorUpdate, id)}';
+      final url = '${ApiEndpoints.baseUrl}${ApiEndpoints.doctorUpdate}';
 
-      // Explicitly encode as JSON string so Dio always sends the right Content-Type
       final response = await _dio.put(
         url,
         data: jsonEncode(fields),
@@ -161,26 +159,24 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
           },
           validateStatus: (status) => true,
         ),
       );
 
-      // Debug: print the raw response
       // ignore: avoid_print
       print(
         '[updateDoctor] status=${response.statusCode} body=${response.data}',
       );
 
       final body = _parseBody(response.data);
-      // success can be bool true OR the string "true"
       final rawSuccess = body['success'];
       final success =
           rawSuccess == true || rawSuccess.toString().toLowerCase() == 'true';
 
       if (success) {
-        final data = body['data'];
-        return DoctorProfile.fromJson(_parseBody(data));
+        return DoctorProfile.fromJson(_parseBody(body['data']));
       } else {
         final message =
             body['message'] as String? ??

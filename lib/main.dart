@@ -4,6 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gradproj/app_router.dart';
 import 'package:gradproj/core/theme/app_colors.dart';
+import 'package:gradproj/features/user/data/data_sources/user_remote_data_source.dart';
+import 'package:gradproj/features/user/data/repositories/user_repository_impl.dart';
+import 'package:gradproj/features/user/logic/user_cubit.dart';
 import 'package:gradproj/features/doctor/data/data_sources/doctor_remote_data_source.dart';
 import 'package:gradproj/features/doctor/data/repositories/doctor_repository_impl.dart';
 import 'package:gradproj/features/doctor/logic/doctor_cubit.dart';
@@ -17,7 +20,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ── Dependency construction ──────────────────────────────────
     final dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 15),
@@ -25,16 +27,24 @@ class MyApp extends StatelessWidget {
       ),
     );
 
-    final dataSource = DoctorRemoteDataSourceImpl(dio);
-    final repository = DoctorRepositoryImpl(dataSource);
+    final doctorDataSource = DoctorRemoteDataSourceImpl(dio);
+    final doctorRepository = DoctorRepositoryImpl(doctorDataSource);
+
+    final userDataSource = UserRemoteDataSourceImpl(dio);
+    final userRepository = UserRepositoryImpl(userDataSource);
 
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return BlocProvider<DoctorCubit>(
-          create: (_) => DoctorCubit(repository),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider<DoctorCubit>(
+              create: (_) => DoctorCubit(doctorRepository),
+            ),
+            BlocProvider<UserCubit>(create: (_) => UserCubit(userRepository)),
+          ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Memomate',
