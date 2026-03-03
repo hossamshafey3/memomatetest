@@ -13,6 +13,10 @@ import 'package:gradproj/features/user/data/models/user_register_model.dart';
 abstract class UserRemoteDataSource {
   Future<void> registerUser(UserRegisterModel model);
   Future<UserLoginResponse> loginUser(UserLoginModel model);
+  Future<UserProfile> updateUserProfile(
+    Map<String, dynamic> data,
+    String token,
+  );
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
@@ -109,6 +113,61 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       }
 
       return UserLoginResponse.fromJson(body);
+    } on ServerException {
+      rethrow;
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        throw const RequestTimeoutException();
+      }
+      if (e.type == DioExceptionType.connectionError) {
+        throw const NoInternetException();
+      }
+      final body = _parseBody(e.response?.data);
+      final message =
+          body['message'] as String? ?? 'An unexpected error occurred.';
+      throw ServerException(
+        message: message,
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  // ── Update Profile ──────────────────────────────────────────────
+  @override
+  Future<UserProfile> updateUserProfile(
+    Map<String, dynamic> data,
+    String token,
+  ) async {
+    try {
+      final response = await _dio.put(
+        '${ApiEndpoints.baseUrl}${ApiEndpoints.patientUpdate}',
+        data: jsonEncode(data),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          validateStatus: (status) => true,
+        ),
+      );
+
+      final body = _parseBody(response.data);
+      final success = body['success'] as bool? ?? false;
+
+      if (!success) {
+        final message =
+            body['message'] as String? ?? 'Profile update failed. Try again.';
+        throw ServerException(
+          message: message,
+          statusCode: response.statusCode,
+        );
+      }
+
+      final updatedProfileData = body['data'] as Map<String, dynamic>? ?? {};
+      return UserProfile.fromJson(updatedProfileData);
     } on ServerException {
       rethrow;
     } on DioException catch (e) {

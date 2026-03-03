@@ -37,14 +37,34 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           children: [
             SizedBox(height: 24.h),
 
-            // ── Page title ──────────────────────────────────
-            Text(
-              'Profile',
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
-                color: AppColors.black,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Profile',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.black,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.edit_note_rounded,
+                    color: AppColors.primary,
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/userEditProfileScreen',
+                      arguments: {
+                        'profile': widget.profile,
+                        'token': widget.token,
+                      },
+                    );
+                  },
+                ),
+              ],
             ),
             SizedBox(height: 20.h),
 

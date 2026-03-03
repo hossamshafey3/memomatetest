@@ -20,6 +20,13 @@ class UserLoginSuccess extends UserState {
   List<Object?> get props => [profile, token];
 }
 
+class UserUpdateSuccess extends UserState {
+  final UserProfile profile;
+  const UserUpdateSuccess({required this.profile});
+  @override
+  List<Object?> get props => [profile];
+}
+
 class UserFailure extends UserState {
   final String message;
   const UserFailure({required this.message});

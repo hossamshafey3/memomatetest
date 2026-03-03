@@ -33,4 +33,17 @@ class UserCubit extends Cubit<UserState> {
       emit(UserLoginSuccess(profile: result.profile!, token: result.token!));
     }
   }
+
+  Future<void> updateUserProfile(
+    Map<String, dynamic> data,
+    String token,
+  ) async {
+    emit(UserLoading());
+    final result = await _repository.updateUserProfile(data, token);
+    if (result.failure != null) {
+      emit(UserFailure(message: result.failure!.message));
+    } else {
+      emit(UserUpdateSuccess(profile: result.profile!));
+    }
+  }
 }

@@ -13,6 +13,10 @@ abstract class UserRepository {
   Future<({UserProfile? profile, String? token, Failure? failure})> loginUser(
     UserLoginModel model,
   );
+  Future<({UserProfile? profile, Failure? failure})> updateUserProfile(
+    Map<String, dynamic> data,
+    String token,
+  );
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -62,6 +66,28 @@ class UserRepositoryImpl implements UserRepository {
         token: null,
         failure: UnexpectedFailure(message: e.toString()),
       );
+    }
+  }
+
+  @override
+  Future<({UserProfile? profile, Failure? failure})> updateUserProfile(
+    Map<String, dynamic> data,
+    String token,
+  ) async {
+    try {
+      final updatedProfile = await _remote.updateUserProfile(data, token);
+      return (profile: updatedProfile, failure: null);
+    } on NoInternetException {
+      return (profile: null, failure: const NoInternetFailure());
+    } on RequestTimeoutException {
+      return (profile: null, failure: const RequestTimeoutFailure());
+    } on ServerException catch (e) {
+      return (
+        profile: null,
+        failure: ServerFailure(message: e.message, statusCode: e.statusCode),
+      );
+    } catch (e) {
+      return (profile: null, failure: UnexpectedFailure(message: e.toString()));
     }
   }
 }

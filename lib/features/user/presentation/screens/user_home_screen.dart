@@ -8,6 +8,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gradproj/core/theme/app_colors.dart';
 import 'package:gradproj/features/user/data/models/user_models.dart';
+import 'package:gradproj/features/user/logic/user_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gradproj/features/user/presentation/screens/user_profile_screen.dart';
 
 class UserHomeScreen extends StatefulWidget {
@@ -22,51 +24,67 @@ class UserHomeScreen extends StatefulWidget {
 
 class _UserHomeScreenState extends State<UserHomeScreen> {
   int _currentIndex = 0;
+  late UserProfile _profile;
 
-  late final List<Widget> _pages;
+  late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
+    _profile = widget.profile;
+    _buildPages();
+  }
+
+  void _buildPages() {
     _pages = [
-      _HomeTab(profile: widget.profile),
+      _HomeTab(profile: _profile),
       const _PlaceholderTab(label: 'Doctor'),
       const _PlaceholderTab(label: 'Reminder'),
-      UserProfileScreen(profile: widget.profile, token: widget.token),
+      UserProfileScreen(profile: _profile, token: widget.token),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: IndexedStack(index: _currentIndex, children: _pages),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.grey,
-        selectedLabelStyle: GoogleFonts.poppins(fontSize: 11.sp),
-        unselectedLabelStyle: GoogleFonts.poppins(fontSize: 11.sp),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.medical_services_outlined),
-            label: 'Doctor',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications_outlined),
-            label: 'Reminder',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline_rounded),
-            label: 'Profile',
-          ),
-        ],
+    return BlocListener<UserCubit, UserState>(
+      listener: (context, state) {
+        if (state is UserUpdateSuccess) {
+          setState(() {
+            _profile = state.profile;
+            _buildPages();
+          });
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: IndexedStack(index: _currentIndex, children: _pages),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (i) => setState(() => _currentIndex = i),
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: AppColors.primary,
+          unselectedItemColor: AppColors.grey,
+          selectedLabelStyle: GoogleFonts.poppins(fontSize: 11.sp),
+          unselectedLabelStyle: GoogleFonts.poppins(fontSize: 11.sp),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_rounded),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.medical_services_outlined),
+              label: 'Doctor',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.notifications_outlined),
+              label: 'Reminder',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline_rounded),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }

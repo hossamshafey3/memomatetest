@@ -23,6 +23,7 @@ class ApiEndpoints {
   // ── Patient (User) ────────────────────────────────────────────
   static const String patientRegister = '/patient/register';
   static const String patientLogin = '/patient/login';
+  static const String patientUpdate = '/patient';
 
   // ── Profile ───────────────────────────────────────────────────
   static const String profile = '/profile';

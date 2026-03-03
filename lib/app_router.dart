@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gradproj/features/user/data/models/user_models.dart';
+import 'package:gradproj/features/user/presentation/screens/user_edit_profile_screen.dart';
 import 'package:gradproj/features/user/presentation/screens/user_home_screen.dart';
 import 'package:gradproj/features/user/presentation/screens/user_login_screen.dart';
 import 'package:gradproj/features/auth/presentation/screens/role_selection_screen.dart';
@@ -17,6 +18,7 @@ class Routes {
   static const String welcomeScreen = '/welcomeScreen';
   static const String loginScreen = '/loginScreen';
   static const String userHomeScreen = '/userHomeScreen';
+  static const String userEditProfileScreen = '/userEditProfileScreen';
   static const String signUpScreen = '/signUpScreen';
   static const String doctorRegisterScreen = '/doctorRegisterScreen';
   static const String doctorLoginScreen = '/doctorLoginScreen';
@@ -48,6 +50,13 @@ class AppRouter {
         final token = args['token'] as String? ?? '';
         return MaterialPageRoute(
           builder: (_) => UserHomeScreen(profile: profile, token: token),
+        );
+      case Routes.userEditProfileScreen:
+        final args = settings.arguments as Map<String, dynamic>;
+        final profile = args['profile'] as UserProfile;
+        final token = args['token'] as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => UserEditProfileScreen(profile: profile, token: token),
         );
       case Routes.doctorRegisterScreen:
         return MaterialPageRoute(builder: (_) => const DoctorRegisterScreen());
