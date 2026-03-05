@@ -37,16 +37,21 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    // ── Check user (caregiver) session ─────────────────
+    // ── Check user (caregiver/patient) session ─────────
     final userToken = await AuthStorage.getUserToken();
     final userProfile = await AuthStorage.getUserProfile();
 
     if (!mounted) return;
 
     if (userToken != null && userToken.isNotEmpty && userProfile != null) {
+      // Restore the last active role (patient or caregiver)
+      final lastRole = await AuthStorage.getLastRole();
+      final route = lastRole == 'patient'
+          ? '/patientHomeScreen'
+          : '/userHomeScreen';
       Navigator.pushReplacementNamed(
         context,
-        '/userHomeScreen',
+        route,
         arguments: {'profile': userProfile, 'token': userToken},
       );
       return;

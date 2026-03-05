@@ -20,6 +20,9 @@ class AuthStorage {
   static const _keyUserToken = 'user_token';
   static const _keyUserProfile = 'user_profile';
 
+  // ── Last active role (patient / caregiver) ─
+  static const _keyLastRole = 'last_role';
+
   // ════════════════════════════════════════════
   //  DOCTOR SESSION
   // ════════════════════════════════════════════
@@ -129,10 +132,24 @@ class AuthStorage {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyUserToken);
     await prefs.remove(_keyUserProfile);
+    await prefs.remove(_keyLastRole);
   }
 
   static Future<bool> isUserLoggedIn() async {
     final token = await getUserToken();
     return token != null && token.isNotEmpty;
+  }
+
+  // ════════════════════════════════════════════
+  //  LAST ACTIVE ROLE  ('patient' | 'caregiver')
+  // ════════════════════════════════════════════
+  static Future<void> saveLastRole(String role) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyLastRole, role);
+  }
+
+  static Future<String?> getLastRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyLastRole);
   }
 }

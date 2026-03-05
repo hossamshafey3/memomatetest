@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:gradproj/core/services/auth_storage.dart';
 import 'package:gradproj/core/theme/app_colors.dart';
 import 'package:gradproj/features/user/data/models/user_models.dart';
+import 'package:gradproj/features/user/presentation/screens/patient_home_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final UserProfile profile;
@@ -29,6 +30,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final displayName = _showPatient
+        ? widget.profile.patientName
+        : widget.profile.caregiverName;
+    final roleLabel = _showPatient ? 'Patient' : 'Caregiver';
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -37,6 +43,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           children: [
             SizedBox(height: 24.h),
 
+            // ── Title row with edit icon ──────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -66,7 +73,53 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: 16.h),
+
+            // ── Avatar + Name header ──────────────────────
+            Center(
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 48.r,
+                    backgroundColor: AppColors.secondary.withValues(alpha: 0.3),
+                    child: Icon(
+                      Icons.person_rounded,
+                      size: 52.r,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    displayName.isEmpty ? '—' : displayName,
+                    style: GoogleFonts.poppins(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.black,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 14.w,
+                      vertical: 4.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    child: Text(
+                      roleLabel,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 24.h),
 
             // ── Caregiver / Patient toggle ──────────────────
             Container(
@@ -98,6 +151,38 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
             SizedBox(height: 32.h),
 
+            // ── Switch to Patient ─────────────────────────────
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PatientHomeScreen(
+                      profile: widget.profile,
+                      token: widget.token,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.swap_horiz_rounded, color: Colors.white),
+              label: Text(
+                'Switch to Patient',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                minimumSize: Size(double.infinity, 50.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                elevation: 0,
+              ),
+            ),
+            SizedBox(height: 12.h),
+
             // ── Logout ───────────────────────────────────────
             OutlinedButton.icon(
               onPressed: () async {
@@ -115,7 +200,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 style: GoogleFonts.poppins(color: AppColors.error),
               ),
               style: OutlinedButton.styleFrom(
-                minimumSize: Size(double.infinity, 48.h),
+                minimumSize: Size(double.infinity, 50.h),
                 side: const BorderSide(color: AppColors.error),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),

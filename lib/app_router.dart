@@ -12,6 +12,7 @@ import 'package:gradproj/features/auth/presentation/screens/welcome_screen.dart'
 import 'package:gradproj/features/doctor/presentation/screens/doctor_home_screen.dart';
 import 'package:gradproj/features/doctor/presentation/screens/doctor_login_screen.dart';
 import 'package:gradproj/features/doctor/presentation/screens/doctor_register_screen.dart';
+import 'package:gradproj/features/user/presentation/screens/patient_home_screen.dart';
 
 class Routes {
   static const String splashScreen = '/';
@@ -25,6 +26,7 @@ class Routes {
   static const String doctorRegisterScreen = '/doctorRegisterScreen';
   static const String doctorLoginScreen = '/doctorLoginScreen';
   static const String doctorHomeScreen = '/doctorHomeScreen';
+  static const String patientHomeScreen = '/patientHomeScreen';
 }
 
 class AppRouter {
@@ -75,6 +77,13 @@ class AppRouter {
         final token = args['token'] as String? ?? '';
         return MaterialPageRoute(
           builder: (_) => DoctorHomeScreen(doctor: profile, token: token),
+        );
+      case Routes.patientHomeScreen:
+        final args = settings.arguments as Map<String, dynamic>;
+        final profile = args['profile'] as UserProfile;
+        final token = args['token'] as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => PatientHomeScreen(profile: profile, token: token),
         );
       default:
         return null;
